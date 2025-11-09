@@ -1,9 +1,21 @@
+import Image from "next/image";
 import Link from "next/link";
 
-import type { ProjectSummary } from "@/lib/content";
+export interface ProjectCardProject {
+  id: string;
+  slug: string;
+  title: string;
+  tagline: string;
+  summary: string;
+  problem: string;
+  contribution: string;
+  impact: string;
+  tech: string[];
+  heroImage?: string | null;
+}
 
 interface ProjectCardProps {
-  project: ProjectSummary;
+  project: ProjectCardProject;
   href?: string;
   showMetrics?: boolean;
   className?: string;
@@ -35,6 +47,18 @@ export function ProjectCard({ project, href, showMetrics = true, className = "" 
             </span>
           ))}
         </div>
+        {project.heroImage ? (
+          <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
+            <Image
+              src={project.heroImage}
+              alt={`${project.title} preview`}
+              width={1200}
+              height={480}
+              className="h-48 w-full object-cover"
+              unoptimized={project.heroImage.startsWith("data:")}
+            />
+          </div>
+        ) : null}
         <div className="mt-4 space-y-3 text-sm text-slate-300">
           <p>
             <span className="font-semibold text-slate-100">Problem:</span> {project.problem}
@@ -69,6 +93,18 @@ export function ProjectCard({ project, href, showMetrics = true, className = "" 
           </span>
         ))}
       </div>
+      {project.heroImage ? (
+        <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
+          <Image
+            src={project.heroImage}
+            alt={`${project.title} preview`}
+            width={1200}
+            height={480}
+            className="h-48 w-full object-cover"
+            unoptimized={project.heroImage.startsWith("data:")}
+          />
+        </div>
+      ) : null}
       <div className="mt-4 space-y-3 text-sm text-slate-300">
         <p>
           <span className="font-semibold text-slate-100">Problem:</span> {project.problem}

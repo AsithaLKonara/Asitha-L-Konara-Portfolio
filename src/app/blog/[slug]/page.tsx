@@ -1,20 +1,21 @@
+import Image from "next/image";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { articleDetails, getArticleDetail } from "@/lib/content";
+import { getArticleBySlug, getArticles } from "@/lib/data";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
 export function generateStaticParams() {
-  return articleDetails.map((article) => ({ slug: article.slug }));
+  return getArticles().then((articles) => articles.map((article) => ({ slug: article.slug })));
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = getArticleDetail(slug);
+  const article = await getArticleBySlug(slug);
 
   if (!article) {
     return {
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const article = getArticleDetail(slug);
+  const article = await getArticleBySlug(slug);
 
   if (!article) {
     notFound();
@@ -39,16 +40,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <div className="bg-[radial-gradient(ellipse_at_top,rgba(10,12,18,1)_0%,rgba(6,7,11,1)_40%)] py-16 text-slate-200">
       <article className="mx-auto max-w-3xl px-6">
-        <Link
-          href="/blog"
-          className="text-sm text-cyan-300 transition hover:text-cyan-200"
-        >
+        <Link href="/blog" className="text-sm text-cyan-300 transition hover:text-cyan-200">
           ← Back to tech insights
         </Link>
 
-        <header className="mt-6">
+        <header className="mt-6 space-y-4">
           <p className="text-xs uppercase tracking-wide text-slate-400">
-            {new Date(article.publishedAt).toLocaleDateString(undefined, {
+            {article.publishedAt.toLocaleDateString(undefined, {
               year: "numeric",
               month: "long",
               day: "numeric",
@@ -56,17 +54,27 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {" · "}
             {article.readingTime}
           </p>
-          <h1 className="mt-2 text-4xl font-bold text-white">{article.title}</h1>
-          <p className="mt-4 text-slate-300">{article.excerpt}</p>
+          <h1 className="text-4xl font-bold text-white">{article.title}</h1>
+          <p className="text-slate-300">{article.excerpt}</p>
+          {article.coverImage ? (
+            <div className="overflow-hidden rounded-2xl border border-white/10">
+              <Image
+                src={article.coverImage}
+                alt={`${article.title} cover`}
+                width={1200}
+                height={480}
+                className="h-72 w-full object-cover"
+                unoptimized={article.coverImage.startsWith("data:")}
+                priority
+              />
+            </div>
+          ) : null}
         </header>
 
-        <div className="prose prose-invert mt-8 max-w-none text-slate-200">
-          {article.content.map((paragraph) => (
-            <p key={paragraph} className="leading-relaxed text-slate-300">
-              {paragraph}
-            </p>
-          ))}
-        </div>
+        <div
+          className="prose prose-invert mt-8 max-w-none text-slate-200"
+          dangerouslySetInnerHTML={{ __html: article.contentHtml }}
+        />
 
         <footer className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-slate-300">
           <p>

@@ -1,7 +1,7 @@
 import { CallToAction } from "@/components/call-to-action";
 import { SectionHeading } from "@/components/section-heading";
 import { TestimonialCard } from "@/components/testimonial-card";
-import { testimonials } from "@/lib/content";
+import { getTestimonials } from "@/lib/data";
 
 export const metadata = {
   title: "What People Say · Asitha L Konara",
@@ -9,7 +9,9 @@ export const metadata = {
     "Testimonials from founders, product leads, and collaborators about shipping AI automation platforms and developer tooling together.",
 };
 
-export default function TestimonialsPage() {
+export default async function TestimonialsPage() {
+  const testimonials = await getTestimonials();
+
   return (
     <div className="bg-[radial-gradient(ellipse_at_top,rgba(10,12,18,1)_0%,rgba(6,7,11,1)_40%)] py-16 text-slate-200">
       <div className="mx-auto max-w-5xl px-6">

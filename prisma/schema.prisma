@@ -20,3 +20,68 @@ model ContactSubmission {
   message   String
   createdAt DateTime @default(now())
 }
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Project {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  tagline      String
+  summary      String
+  problem      String
+  contribution String
+  impact       String
+  overview     String?
+  challenges   Json
+  solution     Json
+  outcomes     Json
+  stack        Json
+  tech         Json
+  heroImage    String?
+  featured     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  contentHtml String
+  coverImage  String?
+  publishedAt DateTime
+  readingTime String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ServiceOffering {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  price       String?
+  bullets     Json
+  iconImage   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  role        String
+  quote       String
+  avatarImage String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

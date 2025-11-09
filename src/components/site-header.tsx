@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { navLinks } from "@/lib/content";
+const NAV_LINKS = [
+  { title: "Home", href: "/" },
+  { title: "Highlights", href: "/projects" },
+  { title: "What I Offer", href: "/services" },
+  { title: "What People Say", href: "/testimonials" },
+  { title: "Tech Insights", href: "/blog" },
+  { title: "Contact", href: "/contact" },
+];
 
 const linkBaseClasses =
   "px-4 py-2 rounded-lg transition text-sm font-medium text-slate-300/80 hover:text-slate-100";
@@ -32,7 +39,7 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-2 md:flex">
-          {navLinks.map((link) => {
+          {NAV_LINKS.map((link) => {
             const isActive =
               link.href === "/"
                 ? pathname === "/"
@@ -42,9 +49,7 @@ export function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 className={`${linkBaseClasses} ${
-                  isActive
-                    ? "bg-white/15 text-white shadow-md"
-                    : "hover:bg-white/10"
+                  isActive ? "bg-white/15 text-white shadow-md" : "hover:bg-white/10"
                 }`}
               >
                 {link.title}

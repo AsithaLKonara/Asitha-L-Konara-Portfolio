@@ -7,13 +7,14 @@ A multi-page Next.js (App Router) portfolio showcasing automation-first products
 - **Landing experience** with featured projects, services, testimonials, and blog teasers.
 - **Deep-dive pages** for projects (`/projects/[slug]`), services, testimonials, and articles.
 - **Contact workflow** posting to `/api/contact` with validation (Zod) and persistence via Prisma.
-- **Central content layer** (`src/lib/content.ts`) powering summaries, case studies, articles, and navigation.
+- **Admin dashboard** for managing projects, articles, services, and testimonials with JWT-protected access.
 - **Shared UI components** for headings, cards, and call-to-action sections to maintain a cohesive look.
 
 ## Getting Started
 
 ```bash
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
@@ -35,11 +36,10 @@ All contact submissions are stored in the `ContactSubmission` table. Update the 
 
 ## Content Management
 
-Structured content for projects, case studies, services, testimonials, and articles lives in `src/lib/content.ts`.
+Structured content now lives in the database. Seed data is located at `prisma/seed-data.ts`, and an authenticated admin dashboard at `/admin` lets you create, edit, and delete entries for projects, articles, services, and testimonials.
 
-- Add new projects to `projectSummaries` and `projectCaseStudies`.
-- Extend testimonials, services, or articles by appending to their exported arrays.
-- Navigation links are driven by the `navLinks` export used in the global header.
+- Run `npm run prisma:migrate` and `npm run prisma:generate` to stay in sync with schema changes.
+- Use `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `JWT_SECRET` environment variables to control dashboard access.
 
 ## Testing & Quality
 
@@ -61,29 +61,33 @@ API route tests live in `tests/api/contact-route.test.ts`, covering validation p
 ```
 src/
   app/
-    api/contact/route.ts    # Contact form API handler
-    blog/                   # Blog listing & article pages
-    contact/                # Client-side contact form with fetch + state handling
-    projects/               # Project listing & dynamic case study routes
-    services/               # Services overview
-    testimonials/           # Testimonials gallery
-    layout.tsx              # Global fonts, header, footer shell
-    page.tsx                # Landing page
-  components/               # Reusable UI primitives (header, cards, CTA, etc.)
+    api/                   # Auth + admin CRUD + contact route handlers
+    blog/                  # Blog listing & article pages
+    contact/               # Client-side contact form with fetch + state handling
+    login/                 # Admin sign-in experience
+    projects/              # Project listing & dynamic case study routes
+    services/              # Services overview
+    testimonials/          # Testimonials gallery
+    admin/                 # Dashboard shell & views
+    layout.tsx             # Global fonts, header, footer shell
+    page.tsx               # Landing page (server component)
+  components/              # Reusable UI primitives and admin/client components
   lib/
-    content.ts              # Central data model
-    prisma.ts               # Prisma client singleton
-    validation/contact.ts   # Shared Zod schema for contact payloads
-  generated/prisma/         # Prisma client output (do not edit)
+    data.ts                # Prisma-backed data fetchers
+    prisma.ts              # Prisma client singleton
+    validation/            # Shared Zod schemas
+  generated/prisma/        # Prisma client output (do not edit)
 prisma/
-  schema.prisma             # Database schema
-  migrations/               # Migration history
+  schema.prisma            # Database schema
+  seed-data.ts             # Canonical seed content
+  seed.ts                  # Seed script
+  migrations/              # Migration history
 ```
 
 ## Deployment
 
-- Ensure the `DATABASE_URL` environment variable is configured in your hosting provider.
+- Ensure the `DATABASE_URL`, `JWT_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` environment variables are configured in your hosting provider. Add `SLACK_WEBHOOK_URL` if you want contact submissions forwarded to Slack.
 - Run `npm run build` to produce an optimized bundle before deployment.
 - For serverless platforms (e.g., Vercel), deploy with the default Next.js adapter; the API route runs in the Node.js runtime.
 
-Feel free to tailor `src/lib/content.ts` and page components to reflect new projects, services, or writing as your portfolio evolves.
+Feel free to tailor the admin dashboard or seed data to reflect new projects, services, or writing as your portfolio evolves.

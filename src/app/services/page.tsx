@@ -1,7 +1,7 @@
 import { CallToAction } from "@/components/call-to-action";
 import { SectionHeading } from "@/components/section-heading";
 import { ServiceCard } from "@/components/service-card";
-import { serviceOfferings } from "@/lib/content";
+import { getServices } from "@/lib/data";
 
 export const metadata = {
   title: "AI Engineer & Automation Developer · What I Offer",
@@ -27,7 +27,9 @@ const processSteps = [
   },
 ];
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const services = await getServices();
+
   return (
     <div className="bg-[radial-gradient(ellipse_at_top,rgba(10,12,18,1)_0%,rgba(6,7,11,1)_40%)] py-16 text-slate-200">
       <div className="mx-auto max-w-5xl px-6">
@@ -38,7 +40,7 @@ export default function ServicesPage() {
         />
 
         <section className="mt-12 grid gap-6 md:grid-cols-2">
-          {serviceOfferings.map((service) => (
+          {services.map((service) => (
             <ServiceCard key={service.id} service={service} />
           ))}
         </section>
@@ -47,7 +49,7 @@ export default function ServicesPage() {
           <h2 className="text-2xl font-semibold text-white">How I plug into teams</h2>
           <div className="mt-6 grid gap-6 md:grid-cols-3">
             {processSteps.map((step) => (
-            <div key={step.title} className="rounded-xl border border-white/10 bg-slate-900/40 p-5 shadow-[0_0_12px_rgba(56,189,248,0.05)]">
+              <div key={step.title} className="rounded-xl border border-white/10 bg-slate-900/40 p-5 shadow-[0_0_12px_rgba(56,189,248,0.05)]">
                 <h3 className="text-lg font-semibold text-white">{step.title}</h3>
                 <p className="mt-3 text-sm text-slate-300">{step.description}</p>
               </div>
