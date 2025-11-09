@@ -1,3 +1,4 @@
+import { VercelDeploymentCard } from "@/components/admin/vercel-deployment-card";
 import { prisma } from "@/lib/prisma";
 
 async function getDashboardData() {
@@ -70,6 +71,8 @@ export default async function AdminHomePage() {
           description={`Since ${stats.thirtyDaysAgo.toLocaleDateString()}`}
         />
       </div>
+
+      <VercelDeploymentCard />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <RecentContacts contacts={stats.recentContacts} />

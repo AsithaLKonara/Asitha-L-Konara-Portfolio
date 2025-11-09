@@ -4,11 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
+    "dev:test": "next dev --hostname 127.0.0.1 --port 3100 --webpack",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
   },
@@ -24,6 +26,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/jest": "^30.0.0",

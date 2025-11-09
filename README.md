@@ -22,17 +22,28 @@ The app runs at [http://localhost:3000](http://localhost:3000). Editing any file
 
 ## Database & Prisma
 
-The project uses SQLite (stored at `./dev.db`) through Prisma.
+The project targets **PostgreSQL** (Supabase in production). Prisma reads the connection string from `DATABASE_URL`. For local development you can point to any Postgres instance—e.g. spin one up with Docker:
 
 ```bash
-# Apply migrations & generate Prisma client
-npx prisma migrate dev
+docker run --name portfolio-db -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 -d postgres:15
 
-# Open the Prisma Studio inspector (optional)
-npx prisma studio
+# set the local connection string (e.g. in .env.local)
+LOCAL_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/portfolio_dev"
 ```
 
-All contact submissions are stored in the `ContactSubmission` table. Update the `DATABASE_URL` inside `.env` if you switch databases.
+When `DATABASE_URL` is missing, the app falls back to `LOCAL_DATABASE_URL` (or `postgresql://postgres:postgres@localhost:5432/portfolio_dev`). The Playwright suite uses `PLAYWRIGHT_DATABASE_URL` if provided—always point it at a disposable database because the tests wipe the schema.
+
+```bash
+# Apply migrations & generate Prisma client against your local DB
+DATABASE_URL="$LOCAL_DATABASE_URL" npx prisma migrate dev
+DATABASE_URL="$LOCAL_DATABASE_URL" npm run prisma:generate
+
+# Open Prisma Studio (optional)
+DATABASE_URL="$LOCAL_DATABASE_URL" npx prisma studio
+```
+
+All contact submissions, testimonials, etc. are persisted in PostgreSQL tables. Update the `DATABASE_URL` / `LOCAL_DATABASE_URL` inside your `.env` files when you switch databases.
 
 ## Content Management
 
@@ -40,6 +51,8 @@ Structured content now lives in the database. Seed data is located at `prisma/se
 
 - Run `npm run prisma:migrate` and `npm run prisma:generate` to stay in sync with schema changes.
 - Use `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `JWT_SECRET` environment variables to control dashboard access.
+- To surface live deployment details in the admin overview, provide `VERCEL_ACCESS_TOKEN` and either `VERCEL_PROJECT_ID` or `VERCEL_PROJECT_NAME` (plus optional `VERCEL_TEAM_ID`). The token requires at least the **Deployments (read)** scope.
+- For end-to-end tests, Playwright reset scripts expect `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `JWT_SECRET`, and a disposable `PLAYWRIGHT_DATABASE_URL`; defaults are provided in `tests/utils/reset-db.ts` when unset.
 
 ## Testing & Quality
 
@@ -49,6 +62,9 @@ npm run lint
 
 # Run Vitest unit tests
 npm run test
+
+# Run Playwright end-to-end tests (Chromium)
+npm run test:e2e
 
 # Build for production
 npm run build
@@ -87,6 +103,7 @@ prisma/
 ## Deployment
 
 - Ensure the `DATABASE_URL`, `JWT_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` environment variables are configured in your hosting provider. Add `SLACK_WEBHOOK_URL` if you want contact submissions forwarded to Slack.
+- Set `VERCEL_ACCESS_TOKEN` and project identifiers if you want the admin dashboard to display the latest Vercel deployment status.
 - Run `npm run build` to produce an optimized bundle before deployment.
 - For serverless platforms (e.g., Vercel), deploy with the default Next.js adapter; the API route runs in the Node.js runtime.
 

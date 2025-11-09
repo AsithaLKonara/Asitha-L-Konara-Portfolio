@@ -6,7 +6,19 @@ import { loginSchema } from "@/lib/validation/auth";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const raw = await request.text();
+
+    if (!raw) {
+      return NextResponse.json({ message: "Invalid credentials" }, { status: 400 });
+    }
+
+    let body: unknown;
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      return NextResponse.json({ message: "Invalid credentials" }, { status: 400 });
+    }
+
     const parsed = loginSchema.safeParse(body);
 
     if (!parsed.success) {

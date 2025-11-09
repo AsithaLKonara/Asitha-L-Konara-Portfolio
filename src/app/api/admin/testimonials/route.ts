@@ -3,16 +3,38 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { testimonialInputSchema } from "@/lib/validation/admin";
+import { AUTH_COOKIE_NAME, verifyAuthToken } from "@/lib/auth";
 
 async function requireAdmin() {
   const headersList = await headers();
   const adminId = headersList.get("x-admin-id");
 
-  if (!adminId) {
+  if (adminId) {
+    return adminId;
+  }
+
+  const cookie = headersList.get("cookie");
+  if (!cookie) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  return adminId;
+  const tokenMatch = cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${AUTH_COOKIE_NAME}=`));
+
+  if (!tokenMatch) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const token = tokenMatch.slice(AUTH_COOKIE_NAME.length + 1);
+  const payload = await verifyAuthToken(token);
+
+  if (!payload?.sub) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  return payload.sub;
 }
 
 export async function GET() {
