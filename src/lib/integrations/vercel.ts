@@ -81,7 +81,7 @@ export async function getLatestVercelDeployment(): Promise<VercelDeploymentInfo 
     searchParams.set("teamId", config.teamId);
   }
 
-  const endpoint = `https://api.vercel.com/v13/deployments?${searchParams.toString()}`;
+  const endpoint = `https://api.vercel.com/v6/deployments?${searchParams.toString()}`;
 
   try {
     const response = await fetch(endpoint, {
